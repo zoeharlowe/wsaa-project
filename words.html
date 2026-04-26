@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Irish Word List</title>
+</head>
+<body>
+
+<h1>Irish Word List</h1>
+
+<h2>Add a New Word</h2>
+
+<label>Irish:</label>
+<input id="irishInput" type="text"><br><br>
+
+<label>English:</label>
+<input id="englishInput" type="text"><br><br>
+
+<button onclick="addWord()">Submit</button>
+
+<hr>
+
+<h2>Your Words</h2>
+<button onclick="loadWords()">Refresh List</button>
+
+<table border="1" cellpadding="6">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Irish</th>
+            <th>English</th>
+            <th>Update</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody id="wordTable"></tbody>
+</table>
+
+<script>
+// Load all words from the backend
+function loadWords() {
+    fetch("/words")
+        .then(r => r.json())
+        .then(data => {
+            const table = document.getElementById("wordTable");
+            table.innerHTML = "";
+
+            data.forEach(item => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td><input value="${item.irish}" id="irish_${item.id}"></td>
+                        <td><input value="${item.english}" id="english_${item.id}"></td>
+                        <td><button onclick="updateWord(${item.id})">Update</button></td>
+                        <td><button onclick="deleteWord(${item.id})">Delete</button></td>
+                    </tr>
+                `;
+            });
+        });
+}
+
+// Add a new word
+function addWord() {
+    const irish = document.getElementById("irishInput").value;
+    const english = document.getElementById("englishInput").value;
+
+    fetch("/words", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({irish, english})
+    }).then(() => {
+        document.getElementById("irishInput").value = "";
+        document.getElementById("englishInput").value = "";
+        loadWords();
+    });
+}
+
+// Update an existing word
+function updateWord(id) {
+    const irish = document.getElementById(`irish_${id}`).value;
+    const english = document.getElementById(`english_${id}`).value;
+
+    fetch(`/words/${id}`, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({irish, english})
+    }).then(() => loadWords());
+}
+
+// Delete a word
+function deleteWord(id) {
+    fetch(`/words/${id}`, {method: "DELETE"})
+        .then(() => loadWords());
+}
+
+// Load words automatically when the page opens
+loadWords();
+</script>
+
+</body>
+</html>
