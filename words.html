@@ -2,41 +2,73 @@
 <html>
 <head>
     <title>Irish Word List</title>
+
+    <!-- Bootstrap CSS -->
+    <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+        rel="stylesheet"
+    >
 </head>
-<body>
+<body class="bg-light">
 
-<h1>Irish Word List</h1>
+<nav class="navbar navbar-dark bg-primary mb-4">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">Irish Word List</span>
+    </div>
+</nav>
 
-<h2>Add a New Word</h2>
+<div class="container">
 
-<label>Irish:</label>
-<input id="irishInput" type="text"><br><br>
+    <!-- ADD NEW WORD BUTTON -->
+    <button class="btn btn-success mb-3" onclick="showAddForm()">Add New Word</button>
 
-<label>English:</label>
-<input id="englishInput" type="text"><br><br>
+    <!-- HIDDEN ADD FORM -->
+    <div id="addForm" class="card p-3 mb-4" style="display:none;">
+        <h4>Add a New Word</h4>
 
-<button onclick="addWord()">Submit</button>
+        <div class="mb-3">
+            <label class="form-label">Irish</label>
+            <input id="irishInput" class="form-control">
+        </div>
 
-<hr>
+        <div class="mb-3">
+            <label class="form-label">English</label>
+            <input id="englishInput" class="form-control">
+        </div>
 
-<h2>Your Words</h2>
-<button onclick="loadWords()">Refresh List</button>
+        <button class="btn btn-primary" onclick="addWord()">Submit</button>
+        <button class="btn btn-secondary" onclick="hideAddForm()">Cancel</button>
+    </div>
 
-<table border="1" cellpadding="6">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Irish</th>
-            <th>English</th>
-            <th>Update</th>
-            <th>Delete</th>
-        </tr>
-    </thead>
-    <tbody id="wordTable"></tbody>
-</table>
+    <h3>Your Words</h3>
+
+    <table class="table table-striped table-bordered mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Irish</th>
+                <th>English</th>
+                <th style="width: 120px;">Update</th>
+                <th style="width: 120px;">Delete</th>
+            </tr>
+        </thead>
+        <tbody id="wordTable"></tbody>
+    </table>
+
+</div>
 
 <script>
-// Load all words from the backend
+// SHOW ADD FORM
+function showAddForm() {
+    document.getElementById("addForm").style.display = "block";
+}
+
+// HIDE ADD FORM
+function hideAddForm() {
+    document.getElementById("addForm").style.display = "none";
+}
+
+// LOAD WORDS
 function loadWords() {
     fetch("/words")
         .then(r => r.json())
@@ -46,38 +78,48 @@ function loadWords() {
 
             data.forEach(item => {
                 table.innerHTML += `
-                    <tr>
+                    <tr id="row_${item.id}">
                         <td>${item.id}</td>
-                        <td><input value="${item.irish}" id="irish_${item.id}"></td>
-                        <td><input value="${item.english}" id="english_${item.id}"></td>
-                        <td><button onclick="updateWord(${item.id})">Update</button></td>
-                        <td><button onclick="deleteWord(${item.id})">Delete</button></td>
+                        <td id="irish_text_${item.id}">${item.irish}</td>
+                        <td id="english_text_${item.id}">${item.english}</td>
+
+                        <td>
+                            <button class="btn btn-warning btn-sm" onclick="startUpdate(${item.id})">Update</button>
+                        </td>
+
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="deleteWord(${item.id})">Delete</button>
+                        </td>
                     </tr>
                 `;
             });
         });
 }
 
-// Add a new word
-function addWord() {
-    const irish = document.getElementById("irishInput").value;
-    const english = document.getElementById("englishInput").value;
+// START UPDATE MODE
+function startUpdate(id) {
+    const irish = document.getElementById(`irish_text_${id}`).innerText;
+    const english = document.getElementById(`english_text_${id}`).innerText;
 
-    fetch("/words", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({irish, english})
-    }).then(() => {
-        document.getElementById("irishInput").value = "";
-        document.getElementById("englishInput").value = "";
-        loadWords();
-    });
-}
+    document.getElementById(`row_${id}`).innerHTML = `
+        <td>${id}</td>
+        <td><input id="irish_edit_${id}" class="form-control" value="${irish}"></td>
+        <td><input id="english_edit_${id}" class="form-control" value="${english}"></td>
 
-// Update an existing word
-function updateWord(id) {
-    const irish = document.getElementById(`irish_${id}`).value;
-    const english = document.getElementById(`english_${id}`).value;
+        <td>
+            <button class="btn btn-success btn-sm" onclick="saveUpdate(${id})">Save</button>
+            <button class="btn btn-secondary btn-sm" onclick="loadWords()">Cancel</button>
+        </td>
+
+        <td>
+            <button class="btn btn-danger btn-sm" onclick="deleteWord(${id})">Delete</button>
+        </td>
+    `;}
+
+// SAVE UPDATE
+function saveUpdate(id) {
+    const irish = document.getElementById(`irish_edit_${id}`).value;
+    const english = document.getElementById(`english_edit_${id}`).value;
 
     fetch(`/words/${id}`, {
         method: "PUT",
@@ -86,13 +128,30 @@ function updateWord(id) {
     }).then(() => loadWords());
 }
 
-// Delete a word
+// ADD NEW WORD
+function addWord() {
+    const irish = document.getElementById("irishInput").value;
+    const english = document.getElementById("englishInput").value;
+    
+    fetch("/words", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({irish, english})
+    }).then(() => {
+        document.getElementById("irishInput").value = "";
+        document.getElementById("englishInput").value = "";
+        hideAddForm();
+        loadWords();
+    });
+}
+
+// DELETE WORD
 function deleteWord(id) {
     fetch(`/words/${id}`, {method: "DELETE"})
         .then(() => loadWords());
 }
 
-// Load words automatically when the page opens
+// LOAD TABLE ON PAGE OPEN
 loadWords();
 </script>
 
