@@ -1,83 +1,90 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Irish Word List</title>
 
     <!-- Bootstrap CSS -->
-    <link 
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
-        rel="stylesheet"
-    >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-light">
 
-<nav class="navbar navbar-dark bg-primary mb-4">
+    <nav class="navbar navbar-dark bg-primary mb-4">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">Irish Word List</span>
+        </div>
+    </nav>
+
     <div class="container">
-        <span class="navbar-brand mb-0 h1">Irish Word List</span>
-    </div>
-</nav>
 
-<div class="container">
+        <!-- ADD NEW WORD BUTTON -->
+        <button class="btn btn-success mb-3" onclick="showAddForm()">Add New Word</button>
 
-    <!-- ADD NEW WORD BUTTON -->
-    <button class="btn btn-success mb-3" onclick="showAddForm()">Add New Word</button>
+        <!-- TEST YOURSELF BUTTON -->
+        <a href="/test" class="btn btn-info mb-3">Test Yourself</a>
 
-    <!-- HIDDEN ADD FORM -->
-    <div id="addForm" class="card p-3 mb-4" style="display:none;">
-        <h4>Add a New Word</h4>
+        <!-- HIDDEN ADD FORM -->
+        <div id="addForm" class="card p-3 mb-4" style="display:none;">
+            <h4>Add a New Word</h4>
 
-        <div class="mb-3">
-            <label class="form-label">Irish</label>
-            <input id="irishInput" class="form-control">
+            <div class="mb-3">
+                <label class="form-label">Irish</label>
+                <input id="irishInput" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">English</label>
+                <input id="englishInput" class="form-control">
+            </div>
+
+            <button class="btn btn-primary" onclick="addWord()">Submit</button>
+            <button class="btn btn-secondary" onclick="hideAddForm()">Cancel</button>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">English</label>
-            <input id="englishInput" class="form-control">
+        <h3>Your Words</h3>
+        <div class="input-group mb-3">
+            <span class="input-group-text">Search</span>
+            <input type="text" id="searchInput" class="form-control" placeholder="Type to search…"
+                onkeyup="filterWords()">
         </div>
 
-        <button class="btn btn-primary" onclick="addWord()">Submit</button>
-        <button class="btn btn-secondary" onclick="hideAddForm()">Cancel</button>
+        <table class="table table-striped table-bordered mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Irish</th>
+                    <th>English</th>
+                    <th style="width: 120px;">Update</th>
+                    <th style="width: 120px;">Delete</th>
+                </tr>
+            </thead>
+            <tbody id="wordTable"></tbody>
+        </table>
+
     </div>
 
-    <h3>Your Words</h3>
+    <script>
+        // SHOW ADD FORM
+        function showAddForm() {
+            document.getElementById("addForm").style.display = "block";
+        }
 
-    <table class="table table-striped table-bordered mt-3">
-        <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Irish</th>
-                <th>English</th>
-                <th style="width: 120px;">Update</th>
-                <th style="width: 120px;">Delete</th>
-            </tr>
-        </thead>
-        <tbody id="wordTable"></tbody>
-    </table>
+        // HIDE ADD FORM
+        function hideAddForm() {
+            document.getElementById("addForm").style.display = "none";
+        }
 
-</div>
+        // LOAD WORDS
+        function loadWords() {
+            fetch("/words")
+                .then(r => r.json())
+                .then(data => {
+                    const table = document.getElementById("wordTable");
+                    table.innerHTML = "";
 
-<script>
-// SHOW ADD FORM
-function showAddForm() {
-    document.getElementById("addForm").style.display = "block";
-}
-
-// HIDE ADD FORM
-function hideAddForm() {
-    document.getElementById("addForm").style.display = "none";
-}
-
-// LOAD WORDS
-function loadWords() {
-    fetch("/words")
-        .then(r => r.json())
-        .then(data => {
-            const table = document.getElementById("wordTable");
-            table.innerHTML = "";
-
-            data.forEach(item => {
-                table.innerHTML += `
+                    data.forEach(item => {
+                        table.innerHTML += `
                     <tr id="row_${item.id}">
                         <td>${item.id}</td>
                         <td id="irish_text_${item.id}">${item.irish}</td>
@@ -92,16 +99,18 @@ function loadWords() {
                         </td>
                     </tr>
                 `;
-            });
-        });
-}
+                    });
 
-// START UPDATE MODE
-function startUpdate(id) {
-    const irish = document.getElementById(`irish_text_${id}`).innerText;
-    const english = document.getElementById(`english_text_${id}`).innerText;
+                    filterWords(); // ← keeps search active after updates
+                });
+        }
 
-    document.getElementById(`row_${id}`).innerHTML = `
+        // START UPDATE MODE
+        function startUpdate(id) {
+            const irish = document.getElementById(`irish_text_${id}`).innerText;
+            const english = document.getElementById(`english_text_${id}`).innerText;
+
+            document.getElementById(`row_${id}`).innerHTML = `
         <td>${id}</td>
         <td><input id="irish_edit_${id}" class="form-control" value="${irish}"></td>
         <td><input id="english_edit_${id}" class="form-control" value="${english}"></td>
@@ -114,46 +123,65 @@ function startUpdate(id) {
         <td>
             <button class="btn btn-danger btn-sm" onclick="deleteWord(${id})">Delete</button>
         </td>
-    `;}
+    `;
+        }
 
-// SAVE UPDATE
-function saveUpdate(id) {
-    const irish = document.getElementById(`irish_edit_${id}`).value;
-    const english = document.getElementById(`english_edit_${id}`).value;
+        // SAVE UPDATE
+        function saveUpdate(id) {
+            const irish = document.getElementById(`irish_edit_${id}`).value;
+            const english = document.getElementById(`english_edit_${id}`).value;
 
-    fetch(`/words/${id}`, {
-        method: "PUT",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({irish, english})
-    }).then(() => loadWords());
-}
+            fetch(`/words/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ irish, english })
+            }).then(() => loadWords());
+        }
 
-// ADD NEW WORD
-function addWord() {
-    const irish = document.getElementById("irishInput").value;
-    const english = document.getElementById("englishInput").value;
-    
-    fetch("/words", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({irish, english})
-    }).then(() => {
-        document.getElementById("irishInput").value = "";
-        document.getElementById("englishInput").value = "";
-        hideAddForm();
+        // ADD NEW WORD
+        function addWord() {
+            const irish = document.getElementById("irishInput").value;
+            const english = document.getElementById("englishInput").value;
+
+            fetch("/words", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ irish, english })
+            }).then(() => {
+                document.getElementById("irishInput").value = "";
+                document.getElementById("englishInput").value = "";
+                hideAddForm();
+                loadWords();
+            });
+        }
+
+        // DELETE WORD
+        function deleteWord(id) {
+            fetch(`/words/${id}`, { method: "DELETE" })
+                .then(() => loadWords());
+        }
+
+        // FILTER WORDS
+        function filterWords() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const rows = document.querySelectorAll("#wordTable tr");
+
+            rows.forEach(row => {
+                const irish = row.children[1].innerText.toLowerCase();
+                const english = row.children[2].innerText.toLowerCase();
+
+                if (irish.includes(query) || english.includes(query)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+
+        // LOAD TABLE ON PAGE OPEN
         loadWords();
-    });
-}
-
-// DELETE WORD
-function deleteWord(id) {
-    fetch(`/words/${id}`, {method: "DELETE"})
-        .then(() => loadWords());
-}
-
-// LOAD TABLE ON PAGE OPEN
-loadWords();
-</script>
+    </script>
 
 </body>
+
 </html>

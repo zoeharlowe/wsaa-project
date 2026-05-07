@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, send_from_directory
 import sqlite3
 import os
+import random
 
 app = Flask(__name__)
 
@@ -65,6 +66,22 @@ def delete_word(id):
     conn.close()
 
     return jsonify({"message": "Word deleted"})
+
+@app.route("/test")
+def test_page():
+    return send_from_directory(os.getcwd(), "test.html")
+
+@app.route("/random_word")
+def random_word():
+    conn = get_db()
+    rows = conn.execute("SELECT * FROM words").fetchall()
+    conn.close()
+
+    if not rows:
+        return jsonify({"error": "No words available"}), 400
+
+    word = random.choice(rows)
+    return jsonify({"id": word["id"], "irish": word["irish"], "english": word["english"]})
 
 if __name__ == "__main__":
     app.run(debug=True)

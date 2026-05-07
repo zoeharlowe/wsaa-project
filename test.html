@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Yourself</title>
+
+    <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+        rel="stylesheet"
+    >
+</head>
+
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-primary mb-4">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">Test Yourself</span>
+        <a href="/" class="btn btn-light btn-sm">Back</a>
+    </div>
+</nav>
+
+<div class="container">
+
+    <h3 class="mb-4">Guess the English Translation</h3>
+
+    <div id="quizCard" class="card p-4">
+        <h4 id="irishWord" class="mb-3"></h4>
+
+        <input id="answerInput" class="form-control mb-3" placeholder="Type the English translation">
+
+        <button class="btn btn-success" onclick="checkAnswer()">Submit</button>
+        <button class="btn btn-secondary" onclick="loadWord()">Next Word</button>
+
+        <p id="result" class="mt-3 fw-bold"></p>
+    </div>
+
+</div>
+
+<script>
+let correctAnswer = "";
+
+function loadWord() {
+    fetch("/random_word")
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById("quizCard").innerHTML = "<p>No words available.</p>";
+                return;
+            }
+
+            document.getElementById("irishWord").innerText = data.irish;
+            correctAnswer = data.english.toLowerCase();
+            document.getElementById("answerInput").value = "";
+            document.getElementById("result").innerText = "";
+        });
+}
+
+function checkAnswer() {
+    const userAnswer = document.getElementById("answerInput").value.toLowerCase();
+
+    if (userAnswer === correctAnswer) {
+        document.getElementById("result").innerHTML = "<span class='text-success'>Correct!</span>";
+    } else {
+        document.getElementById("result").innerHTML = "<span class='text-danger'>Try again!</span>";
+    }
+}
+
+loadWord();
+</script>
+
+</body>
+</html>
