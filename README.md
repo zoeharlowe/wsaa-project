@@ -13,26 +13,37 @@ Built with Flask, SQLite, Bootstrap, and JavaScript.
 
 ## Features
 
-- Add new Irish–English word pairs  
-- View all stored words in a clean Bootstrap table  
-- Inline editing for updates  
-- Delete entries instantly  
-- Live search bar  
-- “Test Yourself” quiz mode (guess the English translation of a random Irish word)  
-- Fully deployed on PythonAnywhere  
+### Browse & Add Words
+- View all Irish–English word pairs stored in the database.
+- Clean, searchable layout for quick reference.
+- Add or update words in Irish and English, as well as their synonyms.
+
+### Test Yourself
+- Randomly generated quiz questions.
+- Accepts multiple correct English translations.
+- Normalises user input (case, punctuation, spacing).
+- Saves every quiz attempt to the database for later analysis.
+
+### Stats Page
+- Displays total quiz attempts and number of correct answers.
+- Shows your most-missed words to guide revision.
+- Lists your 10 most recent attempts with timestamps.
+- Automatically shows a “No data yet” message for new users.
+- Powered by a dedicated `/stats_data` JSON API endpoint.
 
 ---
 
 ## Project Structure
 
 wsaa_project/
-- app.py               # Main Flask application
-- words.html           # CRUD interface
-- test.html            # Quiz page
-- words.db             # SQLite database
-- createdb.py          # Database initialisation script
-- requirements.txt     # Python dependencies
-- README.md            # Documentation
+- app.py               
+- words.html           
+- test.html
+- stats.html            
+- words.db             
+- createdb.py          
+- requirements.txt     
+- README.md            
 
 ---
 
@@ -88,26 +99,31 @@ python app.py
 ```bash
 http://127.0.0.1:5000/
 ```
+---
 
-### Technologies 
-- Python 3.12
-- Flask
-- SQLite
-- Bootstrap 5
-- JavaScript
-- HTML
-- PythonAnywhere
+## Technologies Used
+- **Flask** — backend framework
+- **SQLite** — lightweight relational database
+- **HTML/CSS/Bootstrap** — frontend layout
+- **JavaScript** — quiz logic and stats fetching
+- **PythonAnywhere** — deployment platform
 
-### Libraries & Packages
+---
+
+## Libraries & Packages
 - flask: https://flask.palletsprojects.com/en/stable/quickstart/
 - sqlite3: https://docs.python.org/3/library/sqlite3.html
 - os: https://docs.python.org/3/library/os.html
 - random: https://docs.python.org/3/library/random.html
 
-### References
-- I used Copilot primarily to help me develop the frontend of this webapp as well as the 'test yourself' feature. See conversations with Copilot: https://copilot.microsoft.com/shares/5d82dokXWCe5WZnnZdMcj & https://copilot.microsoft.com/shares/nGVnTN9Tnyx7wD67YsvNH
-- I used the module video lectures (Andrew Beatty) to write the HTML/Flask with CRUD operations. Also followed the lecturer's guidance to deploy the webapp to Python Anywhere.
+---
+
+## Bibliography
+- I used Copilot primarily to help me develop the frontend of this webapp as well as the 'test yourself' feature and 'your stats' page. See conversations with Copilot: https://copilot.microsoft.com/shares/5d82dokXWCe5WZnnZdMcj, https://copilot.microsoft.com/shares/nGVnTN9Tnyx7wD67YsvNH, https://copilot.microsoft.com/shares/mDGYheR9CPi9PYQgUDo3q
+- I used the Web Services and Applications module video lectures (by Andrew Beatty) to write the HTML/Flask with CRUD operations. Also followed the lecturer's guidance to deploy the webapp to Python Anywhere. 
 - GeeksForGeeks helped with creating a SQLite database: https://www.geeksforgeeks.org/python/python-sqlite-creating-a-new-database/
+
+---
 
 ### Author
 Zoe McNamara Harlowe
