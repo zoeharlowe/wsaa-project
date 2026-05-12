@@ -26,9 +26,8 @@ Built with Flask, SQLite, Bootstrap, and JavaScript.
 
 ### Stats Page
 - Displays total quiz attempts and number of correct answers.
-- Shows your most-missed words to guide revision.
-- Lists your 10 most recent attempts with timestamps.
-- Automatically shows a “No data yet” message for new users.
+- Shows the most-missed words to guide revision.
+- Lists the 10 most recent attempts with timestamps.
 - Powered by a dedicated `/stats_data` JSON API endpoint.
 
 ---
@@ -119,7 +118,7 @@ http://127.0.0.1:5000/
 ---
 
 ## Bibliography
-- I used Copilot primarily to help me develop the frontend of this webapp as well as the 'test yourself' feature and 'your stats' page. See conversations with Copilot: https://copilot.microsoft.com/shares/5d82dokXWCe5WZnnZdMcj, https://copilot.microsoft.com/shares/nGVnTN9Tnyx7wD67YsvNH, https://copilot.microsoft.com/shares/mDGYheR9CPi9PYQgUDo3q
+- I used Copilot primarily to help me develop the frontend of this webapp as well as the 'test yourself' feature and 'stats' page. See conversations with Copilot: https://copilot.microsoft.com/shares/5d82dokXWCe5WZnnZdMcj, https://copilot.microsoft.com/shares/nGVnTN9Tnyx7wD67YsvNH, https://copilot.microsoft.com/shares/mDGYheR9CPi9PYQgUDo3q
 - I used the Web Services and Applications module video lectures (by Andrew Beatty) to write the HTML/Flask with CRUD operations. Also followed the lecturer's guidance to deploy the webapp to Python Anywhere. 
 - GeeksForGeeks helped with creating a SQLite database: https://www.geeksforgeeks.org/python/python-sqlite-creating-a-new-database/
 
